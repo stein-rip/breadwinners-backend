@@ -1,23 +1,58 @@
+// require the express module
 import express from "express";
 import { getClient } from "../db";
-import Shoutout from "../models/Bread";
+import Favorite from "../models/Favorite";
 
-const shoutoutRouter = express.Router();
+const favoriteRouter = express.Router();
 
 const errorResponse = (error: any, res: any) => {
   console.error("FAIL", error);
   res.status(500).json({ message: "Internal Server Error" });
 };
 
-shoutoutRouter.get("/shoutouts", async (req, res) => {
+favoriteRouter.get("/users/:userId/favorites", async (req, res) => {
   try {
+    const userId = req.params.userId;
     const client = await getClient();
-    const cursor = client.db().collection<Shoutout>("shoutouts").find();
-    const results = await cursor.toArray();
-    res.json(results);
+    const results = await client
+      .db()
+      .collection<Favorite>("favorites")
+      .find({ userId })
+      .toArray();
+    res.status(200).json(results);
   } catch (err) {
     errorResponse(err, res);
   }
 });
 
-export default shoutoutRouter;
+favoriteRouter.post("/users/:userId/favorites", async (req, res) => {
+  try {
+    const newFavorite: Favorite = req.body as Favorite;
+    const userId = req.params.userId;
+    newFavorite.userId = userId;
+    const client = await getClient();
+    await client.db().collection<Favorite>("favorites").insertOne(newFavorite);
+    res.status(201).json(newFavorite);
+  } catch (err) {
+    errorResponse(err, res);
+  }
+});
+
+favoriteRouter.delete("/users/:userId/favorites/:id", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const id = req.params.id;
+    const client = await getClient();
+    const result = await client
+      .db()
+      .collection<Favorite>("favorites")
+      .deleteOne({ userId: userId, "job.id": id });
+    if (result.deletedCount) {
+      res.sendStatus(204);
+    } else {
+      res.status(404).json({ message: "Not found" });
+    }
+  } catch {}
+});
+
+export default favoriteRouter;
