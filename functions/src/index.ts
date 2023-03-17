@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions";
 import express from "express";
 import cors from "cors";
-import shoutoutRouter from "./routes/breadRouter";
+import shoutoutRouter from "./routes/favoriteRouter";
 const app = express();
 app.use(cors());
 app.use(express.json());
