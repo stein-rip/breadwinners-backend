@@ -1,5 +1,0 @@
-{
-  "mongodb": {
-    "uri": "mongodb+srv://admin:test123@cluster0.oo1bk3a.mongodb.net/breadwinners_db?retryWrites=true&w=majority"
-  }
-}
