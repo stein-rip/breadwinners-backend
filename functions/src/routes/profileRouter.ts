@@ -18,11 +18,7 @@ profileRouter.get("/profiles/:google_id", async (req, res) => {
       .db()
       .collection<Profile>("profiles")
       .findOne({ google_id });
-    if (profile) {
-      res.status(200).json(profile);
-    } else {
-      res.status(404).json({ message: "Profile not found" });
-    }
+    res.status(200).json(profile);
   } catch (error) {
     errorResponse(error, res);
   }
@@ -33,8 +29,20 @@ profileRouter.post("/profiles", async (req, res) => {
   try {
     const newProfile: Profile = req.body;
     const client = await getClient();
-    await client.db().collection<Profile>("profiles").insertOne(newProfile);
-    res.status(201).json(newProfile);
+    const existingProfile = await client
+      .db()
+      .collection<Profile>("profiles")
+      .findOne({ google_id: newProfile.google_id });
+    if (existingProfile) {
+      await client
+        .db()
+        .collection<Profile>("profiles")
+        .replaceOne({ google_id: newProfile.google_id }, newProfile);
+      res.status(200).json(newProfile);
+    } else {
+      await client.db().collection<Profile>("profiles").insertOne(newProfile);
+      res.status(201).json(newProfile);
+    }
   } catch (error) {
     errorResponse(error, res);
   }
