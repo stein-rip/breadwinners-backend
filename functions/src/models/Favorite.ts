@@ -27,5 +27,5 @@ interface Job {
 export default interface Favorite {
   _id: ObjectId;
   job: Job;
-  userId?: string;
+  profile_id?: ObjectId;
 }
