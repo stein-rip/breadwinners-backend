@@ -47,7 +47,7 @@ favoriteRouter.delete("/users/:profile_id/favorites/:id", async (req, res) => {
     const result = await client
       .db()
       .collection<Favorite>("favorites")
-      .deleteOne({ profile_id: profile_id, "job.id": id });
+      .deleteOne({ profile_id: profile_id, "job.job_id": id });
     if (result.deletedCount) {
       res.sendStatus(204);
     } else {
