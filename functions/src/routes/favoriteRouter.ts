@@ -1,5 +1,6 @@
 // require the express module
 import express from "express";
+import { ObjectId } from "mongodb";
 import { getClient } from "../db";
 import Favorite from "../models/Favorite";
 
@@ -10,14 +11,14 @@ const errorResponse = (error: any, res: any) => {
   res.status(500).json({ message: "Internal Server Error" });
 };
 
-favoriteRouter.get("/users/:userId/favorites", async (req, res) => {
+favoriteRouter.get("/users/:profile_id/favorites", async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const profile_id = new ObjectId(req.params.profile_id);
     const client = await getClient();
     const results = await client
       .db()
       .collection<Favorite>("favorites")
-      .find({ userId })
+      .find({ profile_id })
       .toArray();
     res.status(200).json(results);
   } catch (err) {
@@ -25,11 +26,11 @@ favoriteRouter.get("/users/:userId/favorites", async (req, res) => {
   }
 });
 
-favoriteRouter.post("/users/:userId/favorites", async (req, res) => {
+favoriteRouter.post("/users/:profile_id/favorites", async (req, res) => {
   try {
     const newFavorite: Favorite = req.body as Favorite;
-    const userId = req.params.userId;
-    newFavorite.userId = userId;
+    const profile_id = new ObjectId(req.params.profile_id);
+    newFavorite.profile_id = profile_id;
     const client = await getClient();
     await client.db().collection<Favorite>("favorites").insertOne(newFavorite);
     res.status(201).json(newFavorite);
@@ -38,15 +39,15 @@ favoriteRouter.post("/users/:userId/favorites", async (req, res) => {
   }
 });
 
-favoriteRouter.delete("/users/:userId/favorites/:id", async (req, res) => {
+favoriteRouter.delete("/users/:profile_id/favorites/:id", async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const profile_id = new ObjectId(req.params.profile_id);
     const id = req.params.id;
     const client = await getClient();
     const result = await client
       .db()
       .collection<Favorite>("favorites")
-      .deleteOne({ userId: userId, "job.id": id });
+      .deleteOne({ profile_id: profile_id, "job.id": id });
     if (result.deletedCount) {
       res.sendStatus(204);
     } else {
