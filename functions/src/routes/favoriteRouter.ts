@@ -32,8 +32,13 @@ favoriteRouter.post("/users/:profile_id/favorites", async (req, res) => {
     const profile_id = new ObjectId(req.params.profile_id);
     newFavorite.profile_id = profile_id;
     const client = await getClient();
-    await client.db().collection<Favorite>("favorites").insertOne(newFavorite);
-    res.status(201).json(newFavorite);
+    const result = await client.db().collection("favorites").findOne({"job.job_id": newFavorite.job.job_id});
+    if (!result){
+      await client.db().collection<Favorite>("favorites").insertOne(newFavorite);
+      res.status(201).json(newFavorite);
+    }else {
+      res.status(200).json({ message: "You already saved this one!" });
+    }
   } catch (err) {
     errorResponse(err, res);
   }
