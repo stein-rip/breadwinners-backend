@@ -1,5 +1,8 @@
 {
-	"projects": {
-		"default": "breadwinner-fork"
-	}
+  "projects": {
+    "default": "breadwinners-fork",
+    "build": "breadwinners-fork"
+  },
+  "targets": {},
+  "etags": {}
 }
